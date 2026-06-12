@@ -386,7 +386,7 @@ function render() {
   const slice = filtered.slice(start, start+PAGE_SIZE);
 
   const countEl = document.getElementById('results-count');
-  countEl.innerHTML = `<strong>${total.toLocaleString()}</strong> rezulto(j)${total!==1?'j':''} trovita${total!==1?'j':''}` +
+  countEl.innerHTML = `<strong>${total.toLocaleString()}</strong> rezulto(j) trovita(j)` +
     (total>PAGE_SIZE ? ` &mdash; paĝo ${currentPage} el ${totalPages}` : '');
 
   const tbody = document.getElementById('results-body');
