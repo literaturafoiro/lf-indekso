@@ -6,7 +6,7 @@
 <title>Literatura Foiro — Indekso</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@300..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root,[data-theme="light"]{
@@ -15,8 +15,8 @@
   --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#bab9b4;
   --color-primary:#01696f;--color-primary-hover:#0c4e54;
   --color-primary-highlight:#cedcd8;
-  --font-display:'Instrument Serif',Georgia,serif;
-  --font-body:'Work Sans','Helvetica Neue',sans-serif;
+  --font-display:'League Spartan',Georgia,serif;
+  --font-body:'Proxima Nova Condensed','Helvetica Neue',sans-serif;
   --radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;
   --shadow-sm:0 1px 2px oklch(0.2 0.01 80/0.06);
   --shadow-md:0 4px 12px oklch(0.2 0.01 80/0.08);
@@ -51,7 +51,7 @@ a,button,[role="button"],input,select{transition:color var(--transition),backgro
   gap:1rem;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);
 }
 .site-logo{font-family:var(--font-display);font-size:clamp(1.2rem,2vw,1.6rem);font-style:italic;color:var(--color-primary);text-decoration:none}
-.site-logo span{color:var(--color-text-muted);font-style:normal;font-size:0.75rem;display:block;font-family:var(--font-body);letter-spacing:0.08em;text-transform:uppercase}
+.site-logo span{color:var(--color-text-muted);font-style:normal;font-size:0.75rem;display:block;font-family:var(--font-body);letter-spacing:0.08em;text-transform:uppercase;margin-top:1.0rem;}
 
 .theme-btn{
   width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -97,7 +97,7 @@ a,button,[role="button"],input,select{transition:color var(--transition),backgro
 
 .table-wrap{overflow-x:auto;border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
 table{width:100%;border-collapse:collapse;font-size:0.875rem;min-width:900px}
-thead{background:var(--color-surface);position:sticky;top:56px;z-index:10}
+thead{background:var(--color-surface);position:sticky;top:0px;z-index:10}
 th{
   padding:0.75rem 1rem;text-align:left;font-size:0.75rem;font-weight:700;
   text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);
@@ -154,9 +154,9 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
 
 <header class="site-header">
   <a href="#" class="site-logo">
-    Literatura Foiro
-    <span>Indekso de enhavoj</span>
-  </a>
+  <img src="logo.png" alt="Literatura Foiro" height="40">
+  <span>Indekso de enhavoj</span>
+</a>
   <button class="theme-btn" data-theme-toggle aria-label="Ŝanĝi temon">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
@@ -170,16 +170,16 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
     <h2>Serĉi kaj filtri</h2>
     <div class="search-grid">
       <div class="field-group">
-        <label for="f-autoro">Aŭtoro(j)</label>
-        <input type="text" id="f-autoro" placeholder="ex. Giorgio Silfer…" autocomplete="off">
+        <label for="f-autoro">Aŭtoro</label>
+        <input type="text" id="f-autoro" placeholder="ekz. William Auld…" autocomplete="off">
       </div>
       <div class="field-group">
         <label for="f-titolo">Titolo</label>
-        <input type="text" id="f-titolo" placeholder="ex. La infana raso…" autocomplete="off">
+        <input type="text" id="f-titolo" placeholder="ekz. La infana raso…" autocomplete="off">
       </div>
       <div class="field-group">
         <label for="f-tradukis">Tradukinto</label>
-        <input type="text" id="f-tradukis" placeholder="ex. William Auld…" autocomplete="off">
+        <input type="text" id="f-tradukis" placeholder="ekz. …" autocomplete="off">
       </div>
       <div class="field-group">
         <label for="f-fontlingvo">Fontlingvo</label>
@@ -188,20 +188,20 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
         </select>
       </div>
       <div class="field-group">
-        <label for="f-rubriko">Rubriko</label>
+        <label for="f-rubriko">Rubriktitolo</label>
         <select id="f-rubriko">
           <option value="">— ĉiuj —</option>
         </select>
       </div>
       <div class="field-group">
-        <label for="f-tipologio">Tipologio (ŝlosilvorto)</label>
+        <label for="f-tipologio">Tipologio</label>
         <select id="f-tipologio">
           <option value="">— ĉiuj —</option>
         </select>
       </div>
       <div class="field-group">
         <label for="f-recenzita">Recenzita verko/filmo</label>
-        <input type="text" id="f-recenzita" placeholder="ex. La justuloj…" autocomplete="off">
+        <input type="text" id="f-recenzita" placeholder="ekz. La justuloj…" autocomplete="off">
       </div>
       <div class="field-group">
         <label for="f-jaro">Jaro</label>
@@ -219,7 +219,7 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
 
   <div class="results-bar">
     <div class="results-count" id="results-count"></div>
-    <div style="font-size:0.8rem;color:var(--color-text-muted)">Klaku sur kolumna kap por ordigi</div>
+    <div style="font-size:0.8rem;color:var(--color-text-muted)">Klaku sur la kapvortoj por ordigi laŭ inversa vico</div>
   </div>
 
   <div class="table-wrap">
@@ -229,11 +229,11 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
           <th data-col="jaro" onclick="sortBy('jaro')">Jaro<em class="sort-icon">↕</em></th>
           <th data-col="n-ro" onclick="sortBy('n-ro')">N-ro<em class="sort-icon">↕</em></th>
           <th data-col="paĝo(j)" onclick="sortBy('paĝo(j)')">Paĝo(j)<em class="sort-icon">↕</em></th>
-          <th data-col="aŭtoro(j)" onclick="sortBy('aŭtoro(j)')">Aŭtoro(j)<em class="sort-icon">↕</em></th>
+          <th data-col="aŭtoro(j)" onclick="sortBy('aŭtoro(j)')">Aŭtoro<em class="sort-icon">↕</em></th>
           <th data-col="titolo" onclick="sortBy('titolo')">Titolo<em class="sort-icon">↕</em></th>
           <th data-col="tradukis" onclick="sortBy('tradukis')">Tradukis<em class="sort-icon">↕</em></th>
           <th data-col="fontlingvo" onclick="sortBy('fontlingvo')">Fontlingvo<em class="sort-icon">↕</em></th>
-          <th data-col="rubriko" onclick="sortBy('rubriko')">Rubriko<em class="sort-icon">↕</em></th>
+          <th data-col="rubriko" onclick="sortBy('rubriko')">Rubriktitolo<em class="sort-icon">↕</em></th>
           <th data-col="ŝlosilvorto" onclick="sortBy('ŝlosilvorto')">Tipologio<em class="sort-icon">↕</em></th>
           <th data-col="recenzita verko/filmo" onclick="sortBy('recenzita verko/filmo')">Recenzita verko/filmo<em class="sort-icon">↕</em></th>
         </tr>
@@ -286,7 +286,7 @@ function populateSelect(id, key) {
 }
 
 populateSelect('f-fontlingvo', 'fontlingvo');
-populateSelect('f-rubriko', 'rubriko');
+populateSelect('f-rubriktitolo', 'rubriktitolo');
 populateSelect('f-tipologio', 'ŝlosilvorto');
 
 // populate years
@@ -386,7 +386,7 @@ function render() {
   const slice = filtered.slice(start, start+PAGE_SIZE);
 
   const countEl = document.getElementById('results-count');
-  countEl.innerHTML = `<strong>${total.toLocaleString()}</strong> rezulto${total!==1?'j':''} trovita${total!==1?'j':''}` +
+  countEl.innerHTML = `<strong>${total.toLocaleString()}</strong> rezulto(j)${total!==1?'j':''} trovita${total!==1?'j':''}` +
     (total>PAGE_SIZE ? ` &mdash; paĝo ${currentPage} el ${totalPages}` : '');
 
   const tbody = document.getElementById('results-body');
@@ -458,6 +458,30 @@ let debTimer;
 
 // Initial render — all data
 doSearch();
+</script>
+<script>
+  function sendHeight() {
+    window.parent.postMessage(
+      { iframeHeight: document.body.scrollHeight },
+      '*'
+    );
+  }
+  // Invia l'altezza all'inizio e ogni volta che cambia il contenuto
+  const observer = new ResizeObserver(sendHeight);
+  observer.observe(document.body);
+  sendHeight();
+</script>
+<script>
+  function sendHeight() {
+    window.parent.postMessage(
+      { iframeHeight: document.body.scrollHeight },
+      '*'
+    );
+  }
+  // Invia l'altezza all'inizio e ogni volta che cambia il contenuto
+  const observer = new ResizeObserver(sendHeight);
+  observer.observe(document.body);
+  sendHeight();
 </script>
 </body>
 </html>
