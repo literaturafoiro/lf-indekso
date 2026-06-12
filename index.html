@@ -148,6 +148,34 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
   .site-logo span{display:none}
   .main{padding:1rem}
 }
+
+/* ── Multi-select checkbox dropdown ──────────────────────── */
+.multi-select { position: relative; user-select: none; }
+.ms-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.45rem 0.75rem; border: 1px solid var(--color-border);
+  border-radius: 6px; background: var(--color-surface);
+  cursor: pointer; font-size: 0.9rem; color: var(--color-text);
+  min-height: 2.2rem; transition: border-color .15s;
+}
+.ms-toggle:hover { border-color: var(--color-accent); }
+.ms-arrow { font-size: 0.75rem; color: var(--color-text-muted); margin-left: 6px; transition: transform .2s; }
+.multi-select.open .ms-arrow { transform: rotate(180deg); }
+.ms-dropdown {
+  display: none; position: absolute; z-index: 999; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  max-height: 260px; overflow-y: auto; padding: 6px 0;
+}
+.multi-select.open .ms-dropdown { display: block; }
+.ms-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; font-size: 0.875rem; cursor: pointer;
+  color: var(--color-text); transition: background .1s;
+}
+.ms-option:hover { background: var(--color-hover, rgba(128,128,128,.08)); }
+.ms-option input[type=checkbox] { accent-color: var(--color-accent); width: 14px; height: 14px; flex-shrink: 0; }
+.ms-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 </style>
 </head>
 <body>
@@ -194,20 +222,28 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
         </select>
       </div>
       <div class="field-group">
-        <label for="f-tipologio">Tipologio</label>
-        <select id="f-tipologio">
-          <option value="">— ĉiuj —</option>
-        </select>
+        <label>Tipologio</label>
+        <div class="multi-select" id="ms-tipologio">
+          <div class="ms-toggle" onclick="toggleMs('ms-tipologio')">
+            <span class="ms-label" id="ms-tipologio-label">— ĉiuj —</span>
+            <span class="ms-arrow">▾</span>
+          </div>
+          <div class="ms-dropdown" id="ms-tipologio-list"></div>
+        </div>
       </div>
       <div class="field-group">
         <label for="f-recenzita">Recenzita verko/filmo</label>
         <input type="text" id="f-recenzita" placeholder="ekz. La justuloj…" autocomplete="off">
       </div>
       <div class="field-group">
-        <label for="f-jaro">Jaro</label>
-        <select id="f-jaro">
-          <option value="">— ĉiuj —</option>
-        </select>
+        <label>Jaro</label>
+        <div class="multi-select" id="ms-jaro">
+          <div class="ms-toggle" onclick="toggleMs('ms-jaro')">
+            <span class="ms-label" id="ms-jaro-label">— ĉiuj —</span>
+            <span class="ms-arrow">▾</span>
+          </div>
+          <div class="ms-dropdown" id="ms-jaro-list"></div>
+        </div>
       </div>
     </div>
     <div class="search-actions">
@@ -287,29 +323,56 @@ function populateSelect(id, key) {
 
 populateSelect('f-fontlingvo', 'fontlingvo');
 populateSelect('f-rubriko', 'rubriko');
-(function(){
-  const sel = document.getElementById('f-tipologio');
-  const cats = ["prozo originala", "prozo tradukita", "poezio originala", "poezio tradukita", "teatro originala", "teatro tradukita", "eseo originala", "eseo tradukita", "intervjuo", "recenzo", "anonco", "nekrologo"];
-  cats.forEach(v => {
-    const o = document.createElement('option');
-    o.value = v; o.textContent = v;
-    sel.appendChild(o);
-  });
-})();
+// Multi-select helper
+function toggleMs(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.multi-select.open').forEach(e => e.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.multi-select')) {
+    document.querySelectorAll('.multi-select.open').forEach(el => el.classList.remove('open'));
+  }
+});
 
-// populate years
+function buildMs(msId, values) {
+  const list = document.getElementById(msId + '-list');
+  values.forEach(v => {
+    const lbl = document.createElement('label');
+    lbl.className = 'ms-option';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = v;
+    cb.addEventListener('change', () => { updateMsLabel(msId); doSearch(); });
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode(v));
+    list.appendChild(lbl);
+  });
+}
+
+function getMsValues(msId) {
+  return Array.from(document.querySelectorAll('#' + msId + '-list input:checked')).map(cb => cb.value);
+}
+
+function updateMsLabel(msId) {
+  const vals = getMsValues(msId);
+  const lbl = document.getElementById(msId + '-label');
+  lbl.textContent = vals.length === 0 ? '— ĉiuj —' : vals.join(', ');
+}
+
+function resetMs(msId) {
+  document.querySelectorAll('#' + msId + '-list input').forEach(cb => cb.checked = false);
+  updateMsLabel(msId);
+}
+
+// Build tipologio checkboxes
+buildMs('ms-tipologio', ["prozo originala","prozo tradukita","poezio originala","poezio tradukita","teatro originala","teatro tradukita","eseo originala","eseo tradukita","intervjuo","recenzo","anonco","nekrologo"]);
+
+// Build jaro checkboxes
 (function(){
-  const sel = document.getElementById('f-jaro');
   const years = new Set();
-  DATA.forEach(r => {
-    const m = r['jaro'] && r['jaro'].match(/\d{4}/);
-    if(m) years.add(m[0]);
-  });
-  Array.from(years).sort().forEach(y => {
-    const o = document.createElement('option');
-    o.value = y; o.textContent = y;
-    sel.appendChild(o);
-  });
+  DATA.forEach(r => { const m = r['jaro'] && r['jaro'].match(/\d{4}/); if(m) years.add(m[0]); });
+  buildMs('ms-jaro', Array.from(years).sort());
 })();
 
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -331,9 +394,9 @@ function doSearch() {
   const tradukis = document.getElementById('f-tradukis').value.trim();
   const fontlingvo = document.getElementById('f-fontlingvo').value;
   const rubriko = document.getElementById('f-rubriko').value;
-  const tipologio = document.getElementById('f-tipologio').value;
+  const tipologioj = getMsValues('ms-tipologio');
   const recenzita = document.getElementById('f-recenzita').value.trim();
-  const jaro = document.getElementById('f-jaro').value;
+  const jaroj = getMsValues('ms-jaro');
 
   filtered = DATA.filter(r => {
     if(autoro && !contains(r['aŭtoro(j)'], autoro)) return false;
@@ -341,9 +404,9 @@ function doSearch() {
     if(tradukis && !contains(r['tradukis'], tradukis)) return false;
     if(fontlingvo && r['fontlingvo'].trim() !== fontlingvo) return false;
     if(rubriko && r['rubriko'].trim() !== rubriko) return false;
-    if(tipologio && r['tipologio'].trim() !== tipologio) return false;
+    if(tipologioj.length && !tipologioj.includes(r['tipologio'].trim())) return false;
     if(recenzita && !contains(r['recenzita verko/filmo'], recenzita)) return false;
-    if(jaro && !r['jaro'].includes(jaro)) return false;
+    if(jaroj.length && !jaroj.some(y => r['jaro'].includes(y))) return false;
     return true;
   });
 
@@ -354,7 +417,8 @@ function doSearch() {
 
 function resetFilters() {
   ['f-autoro','f-titolo','f-tradukis','f-recenzita'].forEach(id => document.getElementById(id).value='');
-  ['f-fontlingvo','f-rubriko','f-tipologio','f-jaro'].forEach(id => document.getElementById(id).value='');
+  ['f-fontlingvo','f-rubriko'].forEach(id => document.getElementById(id).value='');
+  resetMs('ms-tipologio'); resetMs('ms-jaro');
   sortCol=''; sortDir=1;
   document.querySelectorAll('th').forEach(th=>{th.classList.remove('sorted');th.querySelector('.sort-icon').textContent='↕';});
   doSearch();
