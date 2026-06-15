@@ -13,23 +13,26 @@ HTML_FILE = "index.html"
 with open(CSV_FILE, encoding="utf-8", newline="") as f:
     raw = f.read()
 
-# Normalizza fine riga e rimuovi BOM
 raw = raw.replace('\r\n', '\n').replace('\r', '\n').lstrip('\ufeff')
 lines = raw.split('\n')
-# Rimuovi righe vuote finali
 while lines and not lines[-1].strip():
     lines.pop()
 
-# Salta la prima riga se NON contiene il separatore (es. "lf_indekso")
-# L'intestazione vera contiene sempre "jaro" e "titolo"
+# Salta tutte le righe iniziali finché non troviamo quella con 'jaro' e 'titolo'
 start = 0
-if 'jaro' not in lines[0] and 'titolo' not in lines[0]:
-    print(f"Saltata prima riga: '{lines[0].strip()}'")
-    start = 1
+for i, line in enumerate(lines):
+    if 'jaro' in line and 'titolo' in line:
+        start = i
+        print(f"Intestazione trovata alla riga {i+1}: '{line[:60]}'")
+        break
+else:
+    print("ERRORE: intestazione CSV non trovata (cerca 'jaro' e 'titolo').")
+    sys.exit(1)
+
+if start > 0:
+    print(f"Saltate {start} righe iniziali.")
 
 header = lines[start]
-
-# Rileva automaticamente il separatore
 delimiter = ";" if header.count(";") > header.count(",") else ","
 print(f"Separatore rilevato: '{delimiter}'")
 
@@ -42,7 +45,6 @@ def clean(s):
 records = [{k: clean(v) for k, v in row.items()} for row in reader]
 print(f"Record letti: {len(records)}")
 
-# Verifica campi
 expected = {'jaro', 'titolo', 'aŭtoro(j)', 'tipologio'}
 actual = set(records[0].keys()) if records else set()
 if not expected.issubset(actual):
@@ -64,9 +66,7 @@ if MARKER not in html:
     sys.exit(1)
 
 marker_start = html.index(MARKER)
-data_start = marker_start + len(MARKER) - 1  # position of '['
-end_idx = html.index("];", data_start) + 2
-
+end_idx = html.index("];", marker_start) + 2
 new_html = html[:marker_start] + f"const DATA = {new_json};" + html[end_idx:]
 
 # ── 4. Verifica ──────────────────────────────────────────────────────────────
