@@ -13,13 +13,23 @@ HTML_FILE = "index.html"
 with open(CSV_FILE, encoding="utf-8", newline="") as f:
     raw = f.read()
 
-lines = raw.splitlines()
+# Normalizza fine riga e rimuovi BOM
+raw = raw.replace('\r\n', '\n').replace('\r', '\n').lstrip('\ufeff')
+lines = raw.split('\n')
+# Rimuovi righe vuote finali
+while lines and not lines[-1].strip():
+    lines.pop()
 
-# Salta la prima riga se è "lf_indekso" (aggiunta da Numbers come nome tabella)
-start = 1 if lines[0].strip() == "lf_indekso" else 0
+# Salta la prima riga se NON contiene il separatore (es. "lf_indekso")
+# L'intestazione vera contiene sempre "jaro" e "titolo"
+start = 0
+if 'jaro' not in lines[0] and 'titolo' not in lines[0]:
+    print(f"Saltata prima riga: '{lines[0].strip()}'")
+    start = 1
 
-# Rileva automaticamente il separatore (punto e virgola o virgola)
 header = lines[start]
+
+# Rileva automaticamente il separatore
 delimiter = ";" if header.count(";") > header.count(",") else ","
 print(f"Separatore rilevato: '{delimiter}'")
 
@@ -32,8 +42,8 @@ def clean(s):
 records = [{k: clean(v) for k, v in row.items()} for row in reader]
 print(f"Record letti: {len(records)}")
 
-# Verifica che i campi siano corretti
-expected = {'jaro','titolo','aŭtoro(j)','tipologio'}
+# Verifica campi
+expected = {'jaro', 'titolo', 'aŭtoro(j)', 'tipologio'}
 actual = set(records[0].keys()) if records else set()
 if not expected.issubset(actual):
     print(f"ERRORE: campi CSV non validi.")
@@ -53,18 +63,16 @@ if MARKER not in html:
     print("ERRORE: 'const DATA = [' non trovato nell'HTML.")
     sys.exit(1)
 
-start_idx = html.index(MARKER) + len(MARKER) - 1  # points to '['
-# Find matching closing '];'
-end_idx = html.index("];", start_idx) + 2
+marker_start = html.index(MARKER)
+data_start = marker_start + len(MARKER) - 1  # position of '['
+end_idx = html.index("];", data_start) + 2
 
-new_html = html[:start_idx - len(MARKER) + 1 - (len(MARKER)-1)] 
-# Simpler: replace everything between markers
-new_html = html[:html.index(MARKER)] + f"const DATA = {new_json};" + html[end_idx:]
+new_html = html[:marker_start] + f"const DATA = {new_json};" + html[end_idx:]
 
 # ── 4. Verifica ──────────────────────────────────────────────────────────────
 check = re.search(r'const DATA = (\[[\s\S]*?\]);', new_html)
 if not check:
-    print("ERRORE: verifica fallita, DATA non trovato nell'HTML generato.")
+    print("ERRORE: verifica fallita.")
     sys.exit(1)
 try:
     verify = json.loads(check.group(1))
