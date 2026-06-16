@@ -555,15 +555,18 @@ function dlBlob(blob, name) {
 }
 
 function exportCSV() {
-  var rows = [EXPORT_COLS.slice()];
+  var cols = ['jaro','monato','n-ro','paĝo(j)','aŭtoro(j)','titolo','tradukis','fontlingvo','rubriko','şlosilvorto','recenzita verko/filmo','tipologio'];
+  var rows = [cols.slice()];
   filtered.forEach(function(r) {
-    rows.push(EXPORT_COLS.map(function(k) {
+    rows.push(cols.map(function(k) {
       var v = (r[k] || '').replace(/"/g, '""');
-      return (v.indexOf(';') >= 0 || v.indexOf('"') >= 0 || v.indexOf('\n') >= 0) ? '"' + v + '"' : v;
+      return (v.indexOf(';') >= 0 || v.indexOf('"') >= 0 || v.indexOf('
+') >= 0) ? '"' + v + '"' : v;
     }));
   });
-  var bom = '\uFEFF';
-  var csv = bom + rows.map(function(r){ return r.join(';'); }).join('\n');
+  var bom = '﻿';
+  var csv = bom + rows.map(function(r){ return r.join(';'); }).join('
+');
   var blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
   dlBlob(blob, 'lf-rezultoj.csv');
 }
@@ -580,11 +583,12 @@ function exportXLSX() {
 }
 
 function _doXLSX() {
-  var ws_data = [EXPORT_COLS].concat(filtered.map(function(r) {
-    return EXPORT_COLS.map(function(k) { return r[k] || ''; });
+  var cols = ['jaro','monato','n-ro','paĝo(j)','aŭtoro(j)','titolo','tradukis','fontlingvo','rubriko','şlosilvorto','recenzita verko/filmo','tipologio'];
+  var ws_data = [cols].concat(filtered.map(function(r) {
+    return cols.map(function(k) { return r[k] || ''; });
   }));
   var ws = XLSX.utils.aoa_to_sheet(ws_data);
-  ws['!cols'] = EXPORT_COLS.map(function(k) { return {wch: Math.min(40, Math.max(k.length+2, 12))}; });
+  ws['!cols'] = cols.map(function(k) { return {wch: Math.min(40, Math.max(k.length+2, 12))}; });
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'LF Indekso');
   XLSX.writeFile(wb, 'lf-rezultoj.xlsx');
