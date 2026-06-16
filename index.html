@@ -544,45 +544,51 @@ let debTimer;
 doSearch();
 
 // ── Export ──────────────────────────────────────────────────────────────
-var EXPORT_COLS = ['jaro','monato','n-ro','paĝo(j)','aŭtoro(j)','titolo','tradukis','fontlingvo','rubriko','ŝlosilvorto','recenzita verko/filmo','tipologio'];
+var EXPORT_COLS = ['jaro','monato','n-ro','pa\u011do(j)','a\u016dtoro(j)','titolo','tradukis','fontlingvo','rubriko','\u015flosilvorto','recenzita verko/filmo','tipologio'];
 
 function dlBlob(blob, name) {
-  const a = document.createElement('a');
+  var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;
   a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
 }
 
 function exportCSV() {
-  const rows = [EXPORT_COLS];
-  filtered.forEach(r => rows.push(EXPORT_COLS.map(k => {
-    const v = (r[k] || '').replace(/"/g, '""');
-    return v.includes(';') || v.includes('"') || v.includes('\n') ? `"${v}"` : v;
-  })));
-  const bom = '\uFEFF';
-  const blob = new Blob([bom + rows.map(r => r.join(';')).join('\n')], {type:'text/csv;charset=utf-8;'});
+  var rows = [EXPORT_COLS.slice()];
+  filtered.forEach(function(r) {
+    rows.push(EXPORT_COLS.map(function(k) {
+      var v = (r[k] || '').replace(/"/g, '""');
+      return (v.indexOf(';') >= 0 || v.indexOf('"') >= 0 || v.indexOf('\n') >= 0) ? '"' + v + '"' : v;
+    }));
+  });
+  var bom = '\uFEFF';
+  var csv = bom + rows.map(function(r){ return r.join(';'); }).join('\n');
+  var blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
   dlBlob(blob, 'lf-rezultoj.csv');
 }
 
 function exportXLSX() {
   if (typeof XLSX === 'undefined') {
-    const s = document.createElement('script');
+    var s = document.createElement('script');
     s.src = 'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js';
     s.onload = _doXLSX;
     document.head.appendChild(s);
-  } else { _doXLSX(); }
+  } else {
+    _doXLSX();
+  }
 }
 
 function _doXLSX() {
-  const ws_data = [EXPORT_COLS, ...filtered.map(r => EXPORT_COLS.map(k => r[k] || ''))];
-  const ws = XLSX.utils.aoa_to_sheet(ws_data);
-  ws['!cols'] = EXPORT_COLS.map(k => ({wch: Math.min(40, Math.max(k.length+2, 12))}));
-  const wb = XLSX.utils.book_new();
+  var ws_data = [EXPORT_COLS].concat(filtered.map(function(r) {
+    return EXPORT_COLS.map(function(k) { return r[k] || ''; });
+  }));
+  var ws = XLSX.utils.aoa_to_sheet(ws_data);
+  ws['!cols'] = EXPORT_COLS.map(function(k) { return {wch: Math.min(40, Math.max(k.length+2, 12))}; });
+  var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'LF Indekso');
   XLSX.writeFile(wb, 'lf-rezultoj.xlsx');
 }
-
 </script>
 <script>
   function sendHeight() {
