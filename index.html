@@ -255,7 +255,7 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
 
   <div class="results-bar">
     <div class="results-count" id="results-count"></div>
-    <div style="font-size:0.8rem;color:var(--color-text-muted)">Klaku sur la kapvortoj por ordigi laŭ alfabeta vico</div>
+    <div style="font-size:0.8rem;color:var(--color-text-muted)">Klaku sur la kapvortoj por ordigi laŭ inversa vico</div>
   </div>
 
   <div class="table-wrap">
@@ -281,17 +281,19 @@ td em{background:oklch(from var(--color-primary) l c h/0.18);border-radius:2px;p
 
   <div class="pagination" id="pagination"></div>
 
+
 <div id="export-bar" style="display:flex;gap:0.75rem;justify-content:flex-end;align-items:center;margin-top:1.25rem;flex-wrap:wrap;">
-  <span style="font-size:0.82rem;color:var(--color-text-muted);">Deŝuti la rezultojn:</span>
-  <button class="btn-ghost" onclick="exportCSV()" title="Deŝuti kiel CSV">
+  <span style="font-size:0.82rem;color:var(--color-text-muted)">Elŝuti rezultojn</span>
+  <button class="btn-ghost" onclick="exportCSV()" title="Elŝuti kiel CSV">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV
   </button>
-  <button class="btn-ghost" onclick="exportXLSX()" title="Deŝuti kiel XLSX">
+  <button class="btn-ghost" onclick="exportXLSX()" title="Elŝuti kiel XLSX">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>XLSX
   </button>
 </div>
 
 </main>
+
 
 <script>
 (function(){
@@ -538,52 +540,6 @@ let debTimer;
   document.getElementById(id).addEventListener('change', doSearch);
 });
 
-
-// ── Export functions ─────────────────────────────────────────────────────────
-var EXPORT_COLS = ['jaro','monato','n-ro','paĝo(j)','aŭtoro(j)','titolo','tradukis','fontlingvo','rubriko','ŝlosilvorto','recenzita verko/filmo','tipologio'];
-
-function exportCSV() {
-  const rows = [EXPORT_COLS];
-  filtered.forEach(r => rows.push(EXPORT_COLS.map(k => {
-    const v = (r[k] || '').replace(/"/g, '""');
-    return v.includes(';') || v.includes('"') || v.includes('\n') ? `"${v}"` : v;
-  })));
-  const bom = '\uFEFF';
-  const blob = new Blob([bom + rows.map(r => r.join(';')).join('\n')], {type:'text/csv;charset=utf-8;'});
-  dlBlob(blob, 'lf-rezultoj.csv');
-}
-
-function exportXLSX() {
-  // Build a minimal XLSX using SheetJS (loaded on demand)
-  if (typeof XLSX === 'undefined') {
-    const s = document.createElement('script');
-    s.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
-    s.onload = () => _doXLSX();
-    document.head.appendChild(s);
-  } else {
-    _doXLSX();
-  }
-}
-
-function _doXLSX() {
-  const ws_data = [EXPORT_COLS, ...filtered.map(r => EXPORT_COLS.map(k => r[k] || ''))];
-  const ws = XLSX.utils.aoa_to_sheet(ws_data);
-  // Column widths
-  ws['!cols'] = EXPORT_COLS.map(k => ({wch: Math.min(40, Math.max(k.length+2, 12))}));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'LF Indekso');
-  XLSX.writeFile(wb, 'lf-rezultoj.xlsx');
-}
-
-function dlBlob(blob, name) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 // Initial render — all data
 doSearch();
 </script>
@@ -610,6 +566,46 @@ doSearch();
   const observer = new ResizeObserver(sendHeight);
   observer.observe(document.body);
   sendHeight();
+
+// ── Export ──────────────────────────────────────────────────────────────
+var EXPORT_COLS = ['jaro','monato','n-ro','paĝo(j)','aŭtoro(j)','titolo','tradukis','fontlingvo','rubriko','ŝlosilvorto','recenzita verko/filmo','tipologio'];
+
+function dlBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function exportCSV() {
+  const rows = [EXPORT_COLS];
+  filtered.forEach(r => rows.push(EXPORT_COLS.map(k => {
+    const v = (r[k] || '').replace(/"/g, '""');
+    return v.includes(';') || v.includes('"') || v.includes('\n') ? `"${v}"` : v;
+  })));
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + rows.map(r => r.join(';')).join('\n')], {type:'text/csv;charset=utf-8;'});
+  dlBlob(blob, 'lf-rezultoj.csv');
+}
+
+function exportXLSX() {
+  if (typeof XLSX === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js';
+    s.onload = _doXLSX;
+    document.head.appendChild(s);
+  } else { _doXLSX(); }
+}
+
+function _doXLSX() {
+  const ws_data = [EXPORT_COLS, ...filtered.map(r => EXPORT_COLS.map(k => r[k] || ''))];
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  ws['!cols'] = EXPORT_COLS.map(k => ({wch: Math.min(40, Math.max(k.length+2, 12))}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'LF Indekso');
+  XLSX.writeFile(wb, 'lf-rezultoj.xlsx');
+}
 </script>
 </body>
 </html>
